@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import "./App.css";
 import Chat from "./Chat";
 import Sidebar from "./Sidebar";
 import Pusher from "pusher-js";
 import axios from "./axios";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import Login from "./components/Login/Login";
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+
+export const UserContext = createContext();
+
 function App() {
+  const [loggedInUser, setLoggedInUser] = useState({});
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -19,7 +26,7 @@ function App() {
     });
 
     const channel = pusher.subscribe("messages");
-    channel.bind("inserted", (newMessage) => { 
+    channel.bind("inserted", (newMessage) => {
       setMessages([...messages, newMessage]);
     });
 
@@ -29,14 +36,25 @@ function App() {
     };
   }, [messages]);
 
-
   return (
-    <div className="app">
-      <div className="app_body">
-        <Sidebar />
-        <Chat messages={messages} />
+    <UserContext.Provider value={[loggedInUser, setLoggedInUser]}>
+      <div className="app">
+        <div className="app_body">
+          <Router>
+            <Switch>
+              <PrivateRoute exact path="/">
+                <Sidebar />
+                <Chat messages={messages} />
+              </PrivateRoute>
+
+              <Route path="/login">
+                <Login></Login>
+              </Route>
+            </Switch>
+          </Router>
+        </div>
       </div>
-    </div>
+    </UserContext.Provider>
   );
 }
 

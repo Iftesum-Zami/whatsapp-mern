@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./Chat.css";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import ChatIcon from "@material-ui/icons/Chat";
@@ -7,21 +7,29 @@ import { Avatar, IconButton } from "@material-ui/core";
 import { AttachFile, InsertEmoticon, SearchOutlined } from "@material-ui/icons";
 import MicIcon from "@material-ui/icons/Mic";
 import axios from "./axios";
+import { UserContext } from "./App";
+
 const Chat = ({ messages }) => {
+  const [loggedInUser, setLoggedInUser] = useContext(UserContext);
+  const { name, email, photo } = loggedInUser;
   const [input, setInput] = useState("");
-  console.log(messages);
+
+  const time = new Date();
+  const newTime = time.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
 
   const sendMessage = async (e) => {
-      e.preventDefault();
-      axios.post('/messages/new', {
-        
-            "message":input,
-            "name":"Himel",
-            "timestamp":"20/20/20",
-            "recieved":true
-        
-      })
-      setInput('')
+    e.preventDefault();
+    axios.post("/messages/new", {
+      message: input,
+      name: name,
+      timestamp: newTime,
+      recieved: true,
+    });
+    setInput("");
   };
 
   return (
@@ -46,24 +54,18 @@ const Chat = ({ messages }) => {
         </div>
       </div>
       <div className="chat_body">
-        {messages.map((message) => (
-          <p className={`chat_message ${message.recieved && "chat_receiver"}`}>
+        {messages.map((message, idx) => (
+          <p
+            key={message._id}
+            className={`chat_message ${
+              message.name === name && "chat_receiver"
+            }`}
+          >
             <span className="chat_name">{message.name}</span>
             {message.message}
-            <span className="chat_timestamp">{new Date().toDateString()}</span>
+            <span className="chat_timestamp">{message.timestamp}</span>
           </p>
         ))}
-
-        <p className="chat_message chat_receiver ">
-          <span className="chat_name">Riduan</span>
-          This is a message
-          <span className="chat_timestamp">{new Date().toDateString()}</span>
-        </p>
-        <p className="chat_message ">
-          <span className="chat_name">Riduan</span>
-          This is a message
-          <span className="chat_timestamp">{new Date().toDateString()}</span>
-        </p>
       </div>
       <div className="chat_footer">
         <InsertEmoticon />

@@ -1,3 +1,4 @@
+
 const firebaseConfig = {
     apiKey: "AIzaSyD3mWhGjT_TJ5lnNMmF3N4CVD1PthKQV7w",
     authDomain: "whatsapp-mern-teamproject.firebaseapp.com",
